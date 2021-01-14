@@ -131,7 +131,7 @@ namespace ImageRepoAPI.Controllers
             var imageRepoObj = _mapper.Map<ImageUploads>(imageUploadsDtos);
             if (!_imageRepo.DeleteImage(imageRepoObj))
             {
-                ModelState.AddModelError("", $"Something went wrong when deleting the record {imageRepoObj.ImageName}");
+                ModelState.AddModelError("", $"Something  went wrong when deleting the record {imageRepoObj.ImageName}");
                 return StatusCode(500, ModelState);
             }
             return NoContent();
