@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ImageRepoAPI</name>
+    </assembly>
+    <members>
+        <member name="M:ImageRepoAPI.Controllers.ImageUploadController.GetImages">
+            <summary>
+            Get Images
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:ImageRepoAPI.Controllers.ImageUploadController.GetSingleImage(System.Int32)">
+            <summary>
+            Get Individual Images
+            </summary>
+            <param name="imageId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:ImageRepoAPI.Controllers.ImageUploadController.CreateImage(ImageRepoAPI.Models.Dtos.ImageUploadsDtos)">
+            <summary>
+            Create images
+            </summary>
+            <param name="imageUploadDto"></param>
+            <returns></returns>
+        </member>
+    </members>
+</doc>

@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29709.97
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageRepo", "ImageRepo\ImageRepo.csproj", "{00EC4103-897F-4A50-B0D7-7C905E5DEB57}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageRepoAPI", "ImageRepoAPI\ImageRepoAPI.csproj", "{A20EB23C-B0CA-4465-80FB-A2505A78534B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{00EC4103-897F-4A50-B0D7-7C905E5DEB57}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{00EC4103-897F-4A50-B0D7-7C905E5DEB57}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{00EC4103-897F-4A50-B0D7-7C905E5DEB57}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{00EC4103-897F-4A50-B0D7-7C905E5DEB57}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A20EB23C-B0CA-4465-80FB-A2505A78534B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A20EB23C-B0CA-4465-80FB-A2505A78534B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A20EB23C-B0CA-4465-80FB-A2505A78534B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A20EB23C-B0CA-4465-80FB-A2505A78534B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A7C5289F-4BDE-4377-928C-7CC8E1B26F0C}
+	EndGlobalSection
+EndGlobal
