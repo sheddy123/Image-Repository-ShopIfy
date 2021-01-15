@@ -12,6 +12,8 @@ using ImageRepo.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using ImageRepo.Repository;
+using ImageRepo.Repository.IRepository;
 
 namespace ImageRepo
 {
@@ -35,6 +37,7 @@ namespace ImageRepo
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddRazorPages();
             services.AddHttpClient();
+            services.AddScoped<IImageRepository, ImageRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
