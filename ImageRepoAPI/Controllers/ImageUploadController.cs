@@ -6,12 +6,15 @@ using AutoMapper;
 using ImageRepoAPI.Models;
 using ImageRepoAPI.Models.Dtos;
 using ImageRepoAPI.Repository.IRepository;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ImageRepoAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    //[Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/ImageUpload")]
     [ApiController]
     public class ImageUploadController : Controller
     {
@@ -47,6 +50,7 @@ namespace ImageRepoAPI.Controllers
         /// <param name="imageId"></param>
         /// <returns></returns>
         [HttpGet("GetSingleImage/{imageId:int}")]
+        [Authorize(Roles ="User")]
         [ProducesResponseType(200, Type = typeof(ImageUploadsDtos))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]

@@ -1,28 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace ImageRepoAPI.Models
 {
-    public class User
+    public class AuthenticationModel
     {
-        [Key]
-        public int Id { get; set; }
-
         [Required]
         public string Username { get; set; }
 
         [Required]
         public string Password { get; set; }
+    }
 
+    public class RegisterModel : AuthenticationModel
+    {
         //[Required]
-        public string Role { get; set; }
-
-        [NotMapped]
-        public string Token { get; set; }
-
+        //public string Role { get; set; }
     }
 }
