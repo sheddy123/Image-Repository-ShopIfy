@@ -15,5 +15,6 @@ namespace ImageRepoAPI.Data
         }
 
         public DbSet<ImageUploads> ImageUploads { get; set; }
+        public DbSet<User> Users { get; set; }
     }
 }
