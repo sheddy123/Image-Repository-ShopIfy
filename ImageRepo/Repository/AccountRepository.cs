@@ -21,6 +21,7 @@ namespace ImageRepo.Repository
         public async Task<User> LoginAsync(string url, User objToCreate)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, url);
+            var jsonResponse = "";
             if (objToCreate != null)
             {
                 request.Content = new StringContent(JsonConvert.SerializeObject(objToCreate), Encoding.UTF8, "application/json");
@@ -31,13 +32,14 @@ namespace ImageRepo.Repository
             }
             var client = _clientFactory.CreateClient();
             HttpResponseMessage response = await client.SendAsync(request);
-
+            
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
-                var jsonResponse = await response.Content.ReadAsStringAsync();
+                jsonResponse = await response.Content.ReadAsStringAsync();
                 return JsonConvert.DeserializeObject<User>(jsonResponse);
             }
-            return new User();
+            jsonResponse = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<User>(jsonResponse);
         }
 
         public async Task<bool> RegisterAsync(string url, User objToCreate)

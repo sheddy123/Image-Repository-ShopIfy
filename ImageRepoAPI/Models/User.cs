@@ -24,5 +24,7 @@ namespace ImageRepoAPI.Models
         [NotMapped]
         public string Token { get; set; }
 
+        public string EmailAddress { get; set; }
+
     }
 }

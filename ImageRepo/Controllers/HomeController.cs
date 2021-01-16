@@ -37,7 +37,7 @@ namespace ImageRepo.Controllers
             };
             if (listOfImages != null)
                 return View();
-
+            
             return View(listOfImages);
         }
 
@@ -57,7 +57,7 @@ namespace ImageRepo.Controllers
         public IActionResult Login()
         {
             User obj = new User();
-            return View(obj);
+            return View("LoginRegister",obj);
         }
 
         [HttpPost]
@@ -66,7 +66,7 @@ namespace ImageRepo.Controllers
         {
             var objResponse = await _accountRepo.LoginAsync(StaticDetails.AccountPath + "authenticate", obj);
             if (objResponse.Token == null)
-                return View();
+                return View("LoginRegister", objResponse);
 
             var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
             identity.AddClaim(new Claim(ClaimTypes.Name, objResponse.Username));
@@ -75,7 +75,8 @@ namespace ImageRepo.Controllers
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
             HttpContext.Session.SetString("JWToken", objResponse.Token);
-            return RedirectToAction("~/Home/Index");
+            HttpContext.Session.SetString("Username", objResponse.Username);
+            return RedirectToAction("Index");
         }
 
         [HttpGet]
@@ -101,6 +102,7 @@ namespace ImageRepo.Controllers
         {
             await HttpContext.SignOutAsync();
             HttpContext.Session.SetString("JWToken", "");
+            HttpContext.Session.SetString("Username", "");
             return RedirectToAction("Index");
         }
 

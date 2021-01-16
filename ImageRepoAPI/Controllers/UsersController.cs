@@ -41,7 +41,7 @@ namespace ImageRepoAPI.Controllers
             if (!ifUserNameUnique)
                 return BadRequest(new { message = "Username already exists" });
             
-            var user = _userRepo.Register(model.Username, model.Password);
+            var user = _userRepo.Register(model.Username, model.Password, model.EmailAddress);
 
             if(user == null)
                 return BadRequest(new { message = "Error while registering" });
