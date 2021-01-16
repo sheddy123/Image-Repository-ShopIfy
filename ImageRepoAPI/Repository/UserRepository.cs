@@ -59,13 +59,14 @@ namespace ImageRepoAPI.Repository
             return false;
         }
 
-        public User Register(string username, string password)
+        public User Register(string username, string password, string emailAddress)
         {
             User userObj = new User()
             {
                 Username = username,
                 Password = EncryptPassword.textToEncrypt(password),
-                Role = "Admin"
+                Role = "Admin",
+                EmailAddress = emailAddress
             };
             _db.Users.Add(userObj);
             _db.SaveChanges();

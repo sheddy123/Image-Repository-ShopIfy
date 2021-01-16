@@ -18,6 +18,6 @@ namespace ImageRepoAPI.Models
     public class RegisterModel : AuthenticationModel
     {
         //[Required]
-        //public string Role { get; set; }
+        public string EmailAddress { get; set; }
     }
 }

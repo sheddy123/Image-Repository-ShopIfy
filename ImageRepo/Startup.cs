@@ -51,6 +51,7 @@ namespace ImageRepo
             services.AddRazorPages();
             services.AddHttpClient();
             services.AddScoped<IImageRepository, ImageRepository>();
+            services.AddScoped<IAccountRepository, AccountRepository>();
             services.AddSession(options =>
             {
                 options.IdleTimeout = TimeSpan.FromMinutes(10);

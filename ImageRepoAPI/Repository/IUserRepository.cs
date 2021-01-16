@@ -10,6 +10,6 @@ namespace ImageRepoAPI.Repository
     {
         bool IsUniqueUser(string username);
         User Authenticate(string username, string password);
-        User Register(string username, string password);
+        User Register(string username, string password, string emailAddress);
     }
 }
