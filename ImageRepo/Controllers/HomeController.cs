@@ -13,6 +13,8 @@ using ImageRepo.Models.ViewModels;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using System.IO;
 
 namespace ImageRepo.Controllers
 {
@@ -29,16 +31,28 @@ namespace ImageRepo.Controllers
             _accountRepo = accountRepo;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(ImageUploads uploadImageToDb)
         {
             IndexVm listOfImages = new IndexVm()
             {
                 Images = await _imageRepo.GetAllAsync(StaticDetails.ImagePath, HttpContext.Session.GetString("JWToken"))
             };
+            //HttpContext.Session.Clear();
             if (listOfImages != null)
-                return View();
-            
-            return View(listOfImages);
+            {
+                var username = HttpContext.Session.GetString("Username");
+                if (username != null && username != "")
+                {
+                    TempData["Authenticated"] = "Authenticated";
+                }
+                else
+                {
+                    TempData["Authenticated"] = null;
+                }
+                return View(uploadImageToDb);
+            }
+            TempData["Authenticated"] = "Authenticated";
+            return View(uploadImageToDb);
         }
 
 
@@ -75,9 +89,73 @@ namespace ImageRepo.Controllers
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
 
             HttpContext.Session.SetString("JWToken", objResponse.Token);
+            HttpContext.Session.SetString("UserId", objResponse.Id.ToString());
+            
             HttpContext.Session.SetString("Username", objResponse.Username);
             return RedirectToAction("Index");
         }
+        [HttpGet]
+        public IActionResult UploadImages()
+        {
+            return RedirectToAction("Index");
+        }
+        [HttpPost]
+        //[Authorize(Roles ="test")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadImages(ImageUploads imageUploads)
+        {
+            try
+            {
+                using var ms1 = new MemoryStream();
+                var files = HttpContext.Request.Form.Files;
+                int count = 0;
+                
+
+                imageUploads.Username = HttpContext.Session.GetString("Username");
+                if (imageUploads.Username == null || imageUploads.Username == "")
+                    return View(nameof(AccessDenied));
+
+                if (files.Count > 0)
+                {
+                    count = files.Count;
+                    for (int i = 0; i < files.Count; i++)
+                    {
+                        using (var fs1 = files[i].OpenReadStream())
+                        {
+                            switch (files[i].Name)
+                            {
+                                case "ImagesUploads":
+                                    fs1.CopyTo(ms1);
+                                    imageUploads.FileExtension = Path.GetExtension(files[i].FileName).ToLowerInvariant();
+                                    imageUploads.ImageName = files[i].FileName;
+                                    imageUploads.FileType = files[i].ContentType;
+                                    imageUploads.DateCreated = DateTime.Now;
+                                    imageUploads.UserId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+                                    imageUploads.ImagesUploads = ms1.ToArray();
+                                    imageUploads.imageExistName.Add(imageUploads.ImageName);
+                                    imageUploads.Images = Convert.ToBase64String(imageUploads.ImagesUploads, 0, imageUploads.ImagesUploads.Length);
+                                    imageUploads.ImageUploadList.Add(imageUploads.Images);
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+                var uploadImageToDb = await _imageRepo.UploadImageAsync(StaticDetails.UploadImagePath, imageUploads, HttpContext.Session.GetString("JWToken"));
+                
+                if (uploadImageToDb.imageExist[0] == "Success")
+                    uploadImageToDb.imageExist[0] = (count > 1) ? "Images uploaded successfully" : "Image uploaded successfully";
+
+                
+
+                return View("Index", uploadImageToDb);
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
 
         [HttpGet]
         public IActionResult Register()
@@ -100,7 +178,7 @@ namespace ImageRepo.Controllers
         
         public async Task<IActionResult> LogoutAsync(User obj)
         {
-            await HttpContext.SignOutAsync();
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             HttpContext.Session.SetString("JWToken", "");
             HttpContext.Session.SetString("Username", "");
             return RedirectToAction("Index");

@@ -37,7 +37,7 @@ namespace ImageRepoAPI.Controllers
         [HttpPost("register")]
         public IActionResult Register([FromBody] RegisterModel model)
         {
-            bool ifUserNameUnique = _userRepo.IsUniqueUser(model.Username);
+            bool ifUserNameUnique = _userRepo.IsUniqueUser(model.Username, model.EmailAddress);
             if (!ifUserNameUnique)
                 return BadRequest(new { message = "Username already exists" });
             

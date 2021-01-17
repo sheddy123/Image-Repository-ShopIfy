@@ -25,7 +25,7 @@ namespace ImageRepoAPI.Repository
 
         public User Authenticate(string username, string password)
         {
-            var user = _db.Users.SingleOrDefault(x => x.Username == username && x.Password == password);
+            var user = _db.Users.SingleOrDefault(x => x.Username == username && x.Password == EncryptPassword.textToEncrypt(password));
             //user not found
             if (user == null)
                 return null;
@@ -49,9 +49,9 @@ namespace ImageRepoAPI.Repository
             return user;
         }
 
-        public bool IsUniqueUser(string username)
+        public bool IsUniqueUser(string username, string emailAddress)
         {
-            var user = _db.Users.SingleOrDefault(x => x.Username == username);
+            var user = _db.Users.SingleOrDefault(x => x.Username == username || x.EmailAddress == emailAddress);
 
             if (user == null)
                 return true;
