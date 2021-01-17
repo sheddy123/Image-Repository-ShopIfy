@@ -1,5 +1,6 @@
 ﻿@using Microsoft.AspNetCore.Http;
 @inject IHttpContextAccessor HttpContextAccessor
+@model ImageRepo.Models.ImageUploads;
 @{
     Layout = null;
 }
@@ -22,6 +23,9 @@
     <!-- Bootstrap CSS
         ============================================ -->
     <link rel="stylesheet" href="~/ImageRepo/css/bootstrap.min.css">
+    <!-- bootstrap select CSS
+        ============================================ -->
+    <link rel="stylesheet" href="~/ImageRepo/css/bootstrap-select/bootstrap-select.css">
     <!-- font awesome CSS
         ============================================ -->
     <link rel="stylesheet" href="~/ImageRepo/css/font-awesome.min.css">
@@ -61,6 +65,19 @@
     <!-- modernizr JS
         ============================================ -->
     <script src="~/ImageRepo/js/vendor/modernizr-2.8.3.min.js"></script>
+    <style>
+        .requiredAsteric {
+            color: red;
+        }
+
+        .modalText {
+            text-transform: uppercase full-width;
+            font-size: 28px !important;
+            text-align: center;
+            font-style: italic;
+            color: cadetblue;
+        }
+    </style>
 </head>
 
 <body>
@@ -89,7 +106,7 @@
                                 </div>
                             </li>
                             <li class="nav-item">
-                                @if (HttpContextAccessor.HttpContext.Session.GetString("Username") != "")
+                                @if (HttpContextAccessor.HttpContext.Session.IsAvailable)
                                 {
                                     <a href="~/Home/Login"><span><i class="notika-icon notika-support"></i>Welcome @HttpContextAccessor.HttpContext.Session.GetString("Username")!</span></a>
                                 }
@@ -165,7 +182,7 @@
                                     </div>*@
                             </li>
                             <li class="nav-item dropdown">
-                                @if (HttpContextAccessor.HttpContext.Session.GetString("Username") != "")
+                                @if (HttpContextAccessor.HttpContext.Session.IsAvailable)
                                 {
                                     <a href="~/Home/Logout"><span><i class="notika-icon notika-support"></i>Logout</span></a>
                                 }
@@ -417,6 +434,7 @@
                         </nav>
                     </div>
                 </div>
+                
             </div>
         </div>
     </div>
@@ -430,10 +448,10 @@
                         <li>
                             <a data-toggle="tab" href="#Appviews"><i class="notika-icon notika-app"></i> App views</a>
                         </li>
-                        @if (HttpContextAccessor.HttpContext.Session.GetString("Username") != "")
+                        @if (HttpContextAccessor.HttpContext.Session.IsAvailable)
                         {
                             <li>
-                                <a data-toggle="tab" href="~/Home/UploadImages"><i class="notika-icon notika-house"></i> Upload Images</a>
+                                <a data-toggle="modal" data-target="#myModalone"><i class="notika-icon notika-house"></i> Upload Images</a>
                             </li>
                         }
                         else
@@ -513,28 +531,49 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
-                    <div class="breadcomb-list">
-                        <div class="row">
-                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
-                                <div class="breadcomb-wp">
-                                    <div class="breadcomb-icon">
-                                        <i class="notika-icon notika-edit"></i>
-                                    </div>
-                                    <div class="breadcomb-ctn">
-                                        <h2>Image-nations</h2>
-                                        <p>Welcome to ShopIfy <span class="bread-ntd">Image Repository</span></p>
+                    @if (Model != null)
+                    {
+                        if (Model.imageExist.Count > 0)
+                        {
+                            <div class="alert-area">
+                                <div class="alert-inner">
+                                    <div class="alert-list">
+                                        <div class="alert alert-info alert-dismissible" role="alert">
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true"><i class="notika-icon notika-close"></i></span></button>
+                                            @foreach (var item in @Model.imageExist)
+                                            {
+                                                <b>@item</b><br>
+                                            }
+
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-lg-6 col-md-6 col-sm-6 col-xs-3">
-                                <div class="breadcomb-report">
-                                    <button data-toggle="tooltip" data-placement="left" title="Download Report" class="btn"><i class="notika-icon notika-sent"></i></button>
+                                </div>
+                                }
+                                }
+                                <div class="breadcomb-list">
+                                    <div class="row">
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+                                            <div class="breadcomb-wp">
+                                                <div class="breadcomb-icon">
+                                                    <i class="notika-icon notika-edit"></i>
+                                                </div>
+                                                <div class="breadcomb-ctn">
+                                                    <h2>S-Image-Tory</h2>
+                                                    <p>Welcome to ShopIfy <span class="bread-ntd">Image Repository</span></p>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-md-6 col-sm-6 col-xs-3">
+                                            <div class="breadcomb-report">
+                                                <button data-toggle="tooltip" data-placement="left" title="Download Report" class="btn"><i class="notika-icon notika-sent"></i></button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
     <!-- Breadcomb area End-->
@@ -996,7 +1035,111 @@
         </div>
     </div>
     <!-- Animateions area End-->
+    <!-- Modal for Image Upload-->
+    <div class="modal fade in" id="myModalone" role="dialog">
+        <div class="modal-dialog modals-default">
+            <div class="modal-content">
+                <form asp-controller="Home" asp-action="UploadImages" enctype="multipart/form-data" method="post">
+                    <div class="modal-header">
+                        <h2 class="modalText">upload images</h2>
+                        <button type="button" class="close" data-dismiss="modal">×</button>
+                    </div>
+                    <div class="form-element-list mg-t-30">
+                        <div class="modal-body">
+                            <div class="nk-int-mk sl-dp-mn sm-res-mg-t-10">
+                                <h2>Image<span class="requiredAsteric"> *</span></h2>
+                            </div>
+                            <div class="form-group fm-cmp-mg">
 
+                                <div class="nk-int-st">
+                                    <input asp-for="ImagesUploads" name="ImagesUploads" accept=".gif,.jpg,.jpeg,.png" type="file" class="form-control" data-mask="99-9999999" multiple required>
+                                </div>
+                            </div><br />
+                            <div class="nk-int-mk sl-dp-mn sm-res-mg-t-10">
+                                <h2>Image Classification<span class="requiredAsteric"> *</span></h2>
+                            </div>
+                            <div class="bootstrap-select fm-cmp-mg">
+                                <select class="selectpicker" data-live-search="true" asp-for="ImageClassification" name="ImageClassification" required>
+                                    <option>Astrophotography</option>
+                                    <option>Avian</option>
+                                    <option>Black and White</option>
+                                    <option>Cityscape</option>
+                                    <option>Current Events</option>
+                                    <option>Decisive Moment</option>
+                                    <option>Defocused</option>
+                                    <option>Documentary</option>
+                                    <option>Emotive</option>
+                                    <option>Expression</option>
+                                    <option>Family</option>
+                                    <option>Fashion</option>
+                                    <option>Film</option>
+                                    <option>Fine Art</option>
+                                    <option>Food</option>
+                                    <option>Glamour</option>
+                                    <option>HDRI (High Dynamic Range Imaging)</option>
+                                    <option>Humorous</option>
+                                    <option>Iconic Image</option>
+                                    <option>ICM (intentional camera movement)</option>
+                                    <option>Indexical Image</option>
+                                    <option>Industrial</option>
+                                    <option>Infrared</option>
+                                    <option>Interior</option>
+                                    <option>Journalism</option>
+                                    <option>Landscape</option>
+                                    <option>Lomo</option>
+                                    <option>Macro</option>
+                                    <option>Nature</option>
+                                    <option>Nude</option>
+                                    <option>Panoramas/Mosaics</option>
+                                    <option>Performance</option>
+                                    <option>Pinhole</option>
+                                    <option>Portrait</option>
+                                    <option>Product</option>
+                                    <option>Publicity</option>
+                                    <option>Random</option>
+                                    <option>Recycled Art</option>
+                                    <option>Rough Camera</option>
+                                    <option>Rural</option>
+                                    <option>Sea and Sand</option>
+                                    <option>Sky</option>
+                                    <option>Snapshot</option>
+                                    <option>Sports</option>
+                                    <option>Still Life</option>
+                                    <option>Stock</option>
+                                    <option>Street Photography</option>
+                                    <option>Suburban</option>
+                                    <option>Swimsuit</option>
+                                    <option>Symbolic Image</option>
+                                    <option>Tourist</option>
+                                    <option>Travel</option>
+                                    <option>Underwater</option>
+                                    <option>Urban</option>
+                                    <option>Vehicle</option>
+                                    <option>Vintage</option>
+                                    <option>Weather</option>
+                                    <option>Wedding</option>
+                                </select>
+                            </div><br />
+                            <div class="nk-int-mk sl-dp-mn sm-res-mg-t-10">
+                                <h2>Image Description<span class="requiredAsteric"> *</span></h2>
+                            </div>
+                            <div class="form-group fm-cmp-mg">
+                                <div class="nk-int-st">
+                                    <input asp-for="ImageDescription" name="ImageDescription" type="text" class="form-control" data-mask="99-9999999" placeholder="Image Description" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-default waves-effect">Save changes</button>
+                        <button type="button" class="btn btn-default waves-effect" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!--Section to Message Agent-->
     <div id="tawkchat-minified-wrapper" class="black ltr-direction">
         <div id="tawkchat-minified-container" class="theme-background-color" style="border-radius: 8px 8px 0px 0px;">
             <div id="tawkchat-status-middle">
@@ -1088,6 +1231,10 @@
     <!-- plugins JS
         ============================================ -->
     <script src="~/ImageRepo/js/plugins.js"></script>
+
+    <!-- bootstrap select JS
+        ============================================ -->
+    <script src="~/ImageRepo/js/bootstrap-select/bootstrap-select.js"></script>
     <!-- main JS
         ============================================ -->
     <script src="~/ImageRepo/js/main.js"></script>

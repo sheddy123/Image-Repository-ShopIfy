@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ImageRepoAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210116040510_AddEmailAddressToUsersDb")]
-    partial class AddEmailAddressToUsersDb
+    [Migration("20210117053640_RemoveImageId")]
+    partial class RemoveImageId
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,7 +23,7 @@ namespace ImageRepoAPI.Migrations
 
             modelBuilder.Entity("ImageRepoAPI.Models.ImageUploads", b =>
                 {
-                    b.Property<int>("ImageId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -39,6 +39,10 @@ namespace ImageRepoAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ImageClassification")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ImageDescription")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -47,14 +51,14 @@ namespace ImageRepoAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<byte[]>("Images")
+                    b.Property<string>("Images")
                         .IsRequired()
-                        .HasColumnType("varbinary(max)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
-                    b.HasKey("ImageId");
+                    b.HasKey("Id");
 
                     b.ToTable("ImageUploads");
                 });

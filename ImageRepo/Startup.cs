@@ -32,9 +32,9 @@ namespace ImageRepo
         {
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options =>
             {
-                options.Cookie.HttpOnly = true;
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
-                options.SlidingExpiration = true;
+                //options.Cookie.HttpOnly = true;
+                //options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+                //options.SlidingExpiration = true;
                 options.AccessDeniedPath = "/Home/AccessDenied";
                 options.LoginPath = "/Home/Login";
                 options.LogoutPath = "/Home/Logout";

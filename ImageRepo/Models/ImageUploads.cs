@@ -12,7 +12,9 @@ namespace ImageRepo.Models
         public int ImageId { get; set; }
         
         [Required]
-        public byte[] Images { get; set; }
+        public string Images { get; set; }
+
+        public byte[] ImagesUploads { get; set; }
         
         [Required]
         public int UserId { get; set; }
@@ -31,5 +33,10 @@ namespace ImageRepo.Models
         
         [Required]
         public DateTime DateCreated { get; set; }
+        public List<string> ImageUploadList { get; set; } = new List<string>();
+        public string ImageClassification { get; set; }
+        public string Username { get; set; }
+        public List<string> imageExist { get; set; } = new List<string>();
+        public List<string> imageExistName { get; set; } = new List<string>();
     }
 }

@@ -1,4 +1,5 @@
-﻿using ImageRepo.Repository.IRepository;
+﻿using ImageRepo.Models;
+using ImageRepo.Repository.IRepository;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,35 @@ namespace ImageRepo.Repository
                 return true;
             
             return false;
+        }
+
+        public async Task<ImageUploads> UploadImageAsync(string url, T objToCreate, string token = "")
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, url);
+            var image = new ImageUploads();
+            if (objToCreate != null)
+            {
+                request.Content = new StringContent(JsonConvert.SerializeObject(objToCreate), Encoding.UTF8, "application/json");
+            }
+            else
+            {
+                image.imageExist.Add("Error Processing Request");
+                return image;
+            }
+            var client = _clientFactory.CreateClient();
+            if (token != null && token.Length != 0)
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+            HttpResponseMessage response = await client.SendAsync(request);
+
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                image.imageExist.Add("Success");
+                return image;
+            }
+            var jsonString = await response.Content.ReadAsStringAsync();            
+            return JsonConvert.DeserializeObject<ImageUploads>(jsonString); ;
         }
 
         public async Task<bool> DeleteAsync(string url, int id, string token = "")

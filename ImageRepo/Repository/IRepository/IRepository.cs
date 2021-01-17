@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageRepo.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,5 +13,6 @@ namespace ImageRepo.Repository.IRepository
         Task<bool> CreateAsync(string url, T objToCreate, string token);
         Task<bool> UpdateAsync(string url, T objToCreate, string token);
         Task<bool> DeleteAsync(string url, int id, string token);
+        Task<ImageUploads> UploadImageAsync(string url, T objToCreate, string token = "");
     }
 }

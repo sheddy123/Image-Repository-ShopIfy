@@ -84,9 +84,10 @@ namespace ImageRepoAPI.Controllers
             {
                 return BadRequest(ModelState);
             }
-            if (_imageRepo.ImageUploadExists(imageUploadDto.ImageName))
+            var checkImageExist = _imageRepo.ImageUploadExists(imageUploadDto, imageUploadDto.Username);
+            if (checkImageExist.imageExist.Count > 0)
             {
-                ModelState.AddModelError("", "Image exist");
+                return StatusCode(StatusCodes.Status302Found, checkImageExist);
             }
             if (!ModelState.IsValid)
             {
@@ -98,7 +99,8 @@ namespace ImageRepoAPI.Controllers
                 ModelState.AddModelError("", $"Something went wrong when saving the record {imageRepoObj.ImageName}");
                 return StatusCode(500, ModelState);
             }
-            return CreatedAtRoute("GetSingleImage", new { imageId = imageRepoObj.ImageId}, imageRepoObj);
+            //return CreatedAtRoute("GetSingleImage", new { imageId = imageRepoObj.ImageId}, imageRepoObj);
+            return Ok();
         }
 
         [HttpPatch("UpdateImage/{imageId:int}")]

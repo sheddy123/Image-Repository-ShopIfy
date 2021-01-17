@@ -12,7 +12,7 @@ namespace ImageRepoAPI.Models.Dtos
         public int ImageId { get; set; }
         [Required]
         
-        public byte[] Images { get; set; }
+        public string Images { get; set; }
         [Required]
         public int UserId { get; set; }
         [Required]
@@ -30,5 +30,13 @@ namespace ImageRepoAPI.Models.Dtos
         [Required]
 
         public DateTime DateCreated { get; set; }
+
+        [Required]
+        public string ImageClassification { get; set; }
+
+        public List<string> ImageUploadList { get; set; }
+        public string Username { get; set; }
+        public List<string> imageExist { get; set; }
+        public List<string> imageExistName { get; set; } = new List<string>();
     }
 }

@@ -39,7 +39,7 @@ namespace ImageRepo.Repository
                 return JsonConvert.DeserializeObject<User>(jsonResponse);
             }
             jsonResponse = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<User>(jsonResponse);
+            return new User();
         }
 
         public async Task<bool> RegisterAsync(string url, User objToCreate)

@@ -1,4 +1,5 @@
 ﻿using ImageRepoAPI.Models;
+using ImageRepoAPI.Models.Dtos;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace ImageRepoAPI.Repository.IRepository
     {
         ICollection<ImageUploads> GetImages();
         ImageUploads GetImage(int imageId);
-        bool ImageUploadExists(string name);
+        ImageUploads ImageUploadExists(ImageUploadsDtos image, string username);
         bool ImageUploadExists(int id);
         bool CreateImage(ImageUploads imageUploads);
         bool UpdateImage(ImageUploads imageUploads);
