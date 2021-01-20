@@ -26,6 +26,7 @@ namespace ImageRepoAPI.Controllers
             _mapper = mapper;
         }
 
+
         /// <summary>
         /// Get Images
         /// </summary>
@@ -33,6 +34,7 @@ namespace ImageRepoAPI.Controllers
         [HttpGet("GetImages")]
         [ProducesResponseType(200, Type =typeof(List<ImageUploadsDtos>))]
         [ProducesResponseType(400)]
+        [AllowAnonymous]
         public IActionResult GetImages()
         {
             var objList = _imageRepo.GetImages();
@@ -50,7 +52,7 @@ namespace ImageRepoAPI.Controllers
         /// <param name="imageId"></param>
         /// <returns></returns>
         [HttpGet("GetSingleImage/{imageId:int}")]
-        [Authorize(Roles ="User")]
+        [Authorize(Roles ="User,Admin")]
         [ProducesResponseType(200, Type = typeof(ImageUploadsDtos))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]
@@ -62,17 +64,39 @@ namespace ImageRepoAPI.Controllers
             {
                 return NotFound();
             }
-            var objDto = _mapper.Map<ImageUploadsDtos>(objList);
+            var objDto = _mapper.Map<List<ImageUploadsDtos>>(objList);
 
             return Ok(objDto);
         }
 
+        #region End point to Delete Image
+        /// <summary>
+        /// End point to get form archives
+        /// </summary>
+        /// <returns></returns>
+        [Authorize(Roles = "User,Admin")]
+        [HttpDelete("DeleteResponse/{Id:int}")]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [ProducesDefaultResponseType]
+        public IActionResult DeleteResponse(int Id)
+        {
+            var deleteImage = _imageRepo.GetImageById(Id);
+            if(deleteImage != null)
+            {
+                var objList = _imageRepo.DeleteImageById(deleteImage);
+                return NoContent();
+            }
+            return BadRequest();
+        }
+        #endregion
         /// <summary>
         /// Create images
         /// </summary>
         /// <param name="imageUploadDto"></param>
         /// <returns></returns>
-        [HttpPost]
+        [HttpPost("CreateImage")]
         [ProducesResponseType(201, Type = typeof(ImageUploadsDtos))]
         [ProducesResponseType(400)]
         [ProducesResponseType(404)]

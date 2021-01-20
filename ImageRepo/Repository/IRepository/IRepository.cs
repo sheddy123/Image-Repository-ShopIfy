@@ -10,9 +10,11 @@ namespace ImageRepo.Repository.IRepository
     {
         Task<T> GetAsync(string url, int id, string token);
         Task<IEnumerable<T>> GetAllAsync(string url, string token);
+        Task<List<T>> GetAllImageByIdAsync(string url, int id, string token);
         Task<bool> CreateAsync(string url, T objToCreate, string token);
         Task<bool> UpdateAsync(string url, T objToCreate, string token);
         Task<bool> DeleteAsync(string url, int id, string token);
         Task<ImageUploads> UploadImageAsync(string url, T objToCreate, string token = "");
+        Task<List<T>> GetAllImages(string url);
     }
 }

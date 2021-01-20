@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ImageRepoAPI.Migrations
 {
-    public partial class AddImageRepo : Migration
+    public partial class ImageDb : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -13,8 +13,7 @@ namespace ImageRepoAPI.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ImageId = table.Column<int>(nullable: false),
-                    Images = table.Column<string>(nullable: false),
+                    Images = table.Column<byte[]>(nullable: false),
                     UserId = table.Column<int>(nullable: false),
                     ImageDescription = table.Column<string>(nullable: false),
                     FileType = table.Column<string>(nullable: false),

@@ -15,8 +15,8 @@ namespace ImageRepoAPI.Repository
 {
     public class ImageUploadRepo : IImageUploadRepo
     {
-        public  ApplicationDbContext _db;
-        
+        public ApplicationDbContext _db;
+
         public ImageUploadRepo(ApplicationDbContext db)
         {
             _db = db;
@@ -26,33 +26,31 @@ namespace ImageRepoAPI.Repository
         {
             try
             {
-                int count = 0;
                 string execStatus = "";
                 using (var context = _db)
                 using (var command = context.Database.GetDbConnection().CreateCommand())
                 {
                     command.CommandText = "STP_ADD_IMAGE";
                     command.CommandType = System.Data.CommandType.StoredProcedure;
-                    foreach (var image in imageUploads.ImageUploadList)
+                    foreach (var image in imageUploads.fileImages)
                     {
                         var imageUploadToDb = new ImageUploads()
                         {
-                            Images = image,
+                            Images = image.Image,
                             ImageClassification = imageUploads.ImageClassification,
                             UserId = imageUploads.UserId,
                             ImageDescription = imageUploads.ImageDescription,
                             DateCreated = imageUploads.DateCreated,
-                            ImageName = imageUploads.ImageName,
-                            FileExtension = imageUploads.FileExtension,
-                            FileType = imageUploads.FileType,
+                            ImageName = image.FileName,
+                            FileExtension = image.FileExtension,
+                            FileType = image.FileType,
                         };
                         command.Parameters.Add(new SqlParameter("@Images", imageUploadToDb.Images));
                         command.Parameters.Add(new SqlParameter("@UserId", imageUploadToDb.UserId));
                         command.Parameters.Add(new SqlParameter("@ImageDescription", imageUploadToDb.ImageDescription));
                         command.Parameters.Add(new SqlParameter("@DateCreated", imageUploadToDb.DateCreated));
-                        //command.Parameters.Add(new SqlParameter("@ImageName", imageUploadToDb.ImageName));
                         command.Parameters.Add(new SqlParameter("@ImageClassification", imageUploadToDb.ImageClassification));
-                        command.Parameters.Add(new SqlParameter("@ImageName", imageUploads.imageExistName[count]));
+                        command.Parameters.Add(new SqlParameter("@ImageName", imageUploadToDb.ImageName));
                         command.Parameters.Add(new SqlParameter("@FileExtension", imageUploadToDb.FileExtension));
                         command.Parameters.Add(new SqlParameter("@FileType", imageUploadToDb.FileType));
                         command.Parameters.Add(new SqlParameter("@Status", SqlDbType.VarChar, 4000));
@@ -66,13 +64,11 @@ namespace ImageRepoAPI.Repository
                         //}
                         //context.Database.CloseConnection();
                         command.Parameters.Clear();
-                        count++;
+             
                     }
-                        
-
-                    
+                    return execStatus != "" ? true : false;
                 }
-                
+
                 //using (var context = _db)
                 //{
                 //    foreach (var image in imageUploads.ImageUploadList)
@@ -102,55 +98,83 @@ namespace ImageRepoAPI.Repository
                 //    }
                 //}
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
-            
-            return true;
         }
-        public void Dispose()
-        {
-            _db.Dispose();
-            _db = null;
-        }
+        //public void Dispose()
+        //{
+        //    _db.Dispose();
+        //    _db = null;
+        //}
         public bool DeleteImage(ImageUploads imageUploads)
         {
             _db.ImageUploads.Remove(imageUploads);
             return Save();
         }
 
-        public ImageUploads GetImage(int imageId)
+        public ICollection<ImageUploads> GetImage(int imageId)
         {
-            return  _db.ImageUploads.FirstOrDefault(a => a.Id == imageId);
+            var value = _db.ImageUploads.Where(a => a.Id == imageId).OrderBy(x => x.ImageName).ToList();
+            return value;
+            //return _db.ImageUploads.SelectMany(a => a.Id == imageId).ToList();//.OrderBy(b => b.ImageName).ToList();
+        }
+        public ImageUploads GetImageById(int imageId)
+        {
+            return _db.ImageUploads.FirstOrDefault(a => a.Id.Equals(imageId));
+        }
+
+        public bool DeleteImageById(ImageUploads image)
+        {
+            if (image != null)
+            {
+                _db.ImageUploads.Remove(image);
+                return Save();
+            }
+            return false;
         }
 
         public ICollection<ImageUploads> GetImages()
         {
-            return _db.ImageUploads.OrderBy(a => a.ImageName).ToList();
+            return _db.ImageUploads.OrderBy(a => a.Id).ToList();
         }
 
         public ImageUploads ImageUploadExists(ImageUploadsDtos image, string username)
         {
             try
             {
-                int count = 0;
-                var value = new ImageUploads();
-                foreach(var img in image.ImageUploadList)
+                string execStatus = "";
+                var context = _db;
+                var command = context.Database.GetDbConnection().CreateCommand();
                 {
-                    var values = _db.ImageUploads.Any(x => x.Images == img);
-                    if (values == true)
-                        value.imageExist.Add(image.imageExistName[count] + " exists");
+                    command.CommandText = "STP_IMAGE_EXISTS";
+                    command.CommandType = System.Data.CommandType.StoredProcedure;
+                    var value = new ImageUploads();
+                    foreach (var img in image.fileImages)
+                    {
+                        command.Parameters.Add(new SqlParameter("@Images", img.Image));
+                        command.Parameters.Add(new SqlParameter("@Username", username));
 
-                    count++;
+                        command.Parameters.Add(new SqlParameter("@Status", SqlDbType.VarChar, 4000));
+                        command.Parameters["@Status"].Direction = ParameterDirection.Output;
+
+                        context.Database.OpenConnection();
+                        command.ExecuteNonQuery();
+                        execStatus = Convert.ToString(command.Parameters["@Status"].Value);
+                        command.Parameters.Clear();
+
+                        if(execStatus != null && execStatus != "")
+                            value.imageExist.Add(execStatus);
+                    }
+                    return value;
                 }
-
-                //_db.ImageUploads.Select(a => a.Images == image && a.Username == username);
-                return value;
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 throw ex;
             }
+
         }
 
         public bool ImageUploadExists(int id)
@@ -165,7 +189,7 @@ namespace ImageRepoAPI.Repository
 
         public bool UpdateImage(ImageUploads imageUploads)
         {
-           _db.ImageUploads.Update(imageUploads);
+            _db.ImageUploads.Update(imageUploads);
             return Save();
         }
     }
