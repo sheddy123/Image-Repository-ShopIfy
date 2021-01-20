@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ImageRepoAPI.Models.Dtos;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -15,7 +16,7 @@ namespace ImageRepoAPI.Models
         //public int ImageId { get; set; }
 
         [Required]
-        public string Images { get; set; }
+        public byte[] Images { get; set; }
 
         [Required]
         [ForeignKey("Users")]
@@ -40,12 +41,14 @@ namespace ImageRepoAPI.Models
         public string ImageClassification { get; set; }
 
         [NotMapped]
-        public List<string> ImageUploadList { get; set; }
+        public List<byte[]> ImageUploadList { get; set; }
         [NotMapped]
         public string Username { get; set; }
         [NotMapped]
         public List<string> imageExist { get; set; } = new List<string>();
         [NotMapped]
         public List<string> imageExistName { get; set; } = new List<string>();
+        [NotMapped]
+        public List<FileImage> fileImages { get; set; }
     }
 }

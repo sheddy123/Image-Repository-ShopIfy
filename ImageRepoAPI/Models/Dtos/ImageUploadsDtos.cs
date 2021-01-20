@@ -8,11 +8,11 @@ namespace ImageRepoAPI.Models.Dtos
 {
     public class ImageUploadsDtos
     {
-        
+        public int Id { get; set; }
         public int ImageId { get; set; }
         [Required]
         
-        public string Images { get; set; }
+        public byte[] Images { get; set; }
         [Required]
         public int UserId { get; set; }
         [Required]
@@ -34,9 +34,16 @@ namespace ImageRepoAPI.Models.Dtos
         [Required]
         public string ImageClassification { get; set; }
 
-        public List<string> ImageUploadList { get; set; }
+        public List<FileImage> fileImages { get; set; }
         public string Username { get; set; }
         public List<string> imageExist { get; set; }
-        public List<string> imageExistName { get; set; } = new List<string>();
+        
+    }
+    public class FileImage
+    {
+        public byte[] Image { get; set; }
+        public string FileType { get; set; }
+        public string FileName { get; set; }
+        public string FileExtension { get; set; }
     }
 }

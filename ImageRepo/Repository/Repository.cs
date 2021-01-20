@@ -88,6 +88,19 @@ namespace ImageRepo.Repository
             return false;
         }
 
+        public async Task<List<T>> GetAllImages(string url)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            var client = _clientFactory.CreateClient();
+            HttpResponseMessage response = await client.SendAsync(request);
+            if (response.StatusCode.Equals(System.Net.HttpStatusCode.OK))
+            {
+                var jsonString = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<List<T>>(jsonString);
+            }
+            return null;
+        }
+
         public async Task<IEnumerable<T>> GetAllAsync(string url, string token = "")
         {
             var request = new HttpRequestMessage(HttpMethod.Get, url);
@@ -104,7 +117,22 @@ namespace ImageRepo.Repository
             }
             return null;
         }
-
+        public async Task<List<T>> GetAllImageByIdAsync(string url, int id, string token)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, url + id);
+            var client = _clientFactory.CreateClient();
+            if (token != null && token.Length != 0)
+            {
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            }
+            HttpResponseMessage response = await client.SendAsync(request);
+            if (response.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                var jsonString = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<List<T>>(jsonString);
+            }
+            return null;
+        }
         public async Task<T> GetAsync(string url, int id, string token)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, url);

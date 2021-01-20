@@ -17,6 +17,12 @@
             <param name="imageId"></param>
             <returns></returns>
         </member>
+        <member name="M:ImageRepoAPI.Controllers.ImageUploadController.DeleteResponse(System.Int32)">
+            <summary>
+            End point to get form archives
+            </summary>
+            <returns></returns>
+        </member>
         <member name="M:ImageRepoAPI.Controllers.ImageUploadController.CreateImage(ImageRepoAPI.Models.Dtos.ImageUploadsDtos)">
             <summary>
             Create images

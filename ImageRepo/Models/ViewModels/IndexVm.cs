@@ -7,6 +7,8 @@ namespace ImageRepo.Models.ViewModels
 {
     public class IndexVm
     {
-        public IEnumerable<ImageUploads> Images { get; set; }
+        public List<ImageUploads> Images { get; set; }
+        
+
     }
 }

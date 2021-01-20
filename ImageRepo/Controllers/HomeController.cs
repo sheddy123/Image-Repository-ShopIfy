@@ -18,43 +18,66 @@ using System.IO;
 
 namespace ImageRepo.Controllers
 {
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IAccountRepository _accountRepo;
         private readonly IImageRepository _imageRepo;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public HomeController(ILogger<HomeController> logger, IAccountRepository accountRepo, IImageRepository imageRepo)
+        public HomeController(ILogger<HomeController> logger, IHttpContextAccessor httpContextAccessor, IAccountRepository accountRepo, IImageRepository imageRepo)
         {
             _logger = logger;
+            _httpContextAccessor = httpContextAccessor;
             _imageRepo = imageRepo;
             _accountRepo = accountRepo;
         }
 
-        public async Task<IActionResult> Index(ImageUploads uploadImageToDb)
+        [AllowAnonymous]
+        public async Task<IActionResult> Index()
         {
+            ImageUploads imgUploads = new ImageUploads();
             IndexVm listOfImages = new IndexVm()
             {
-                Images = await _imageRepo.GetAllAsync(StaticDetails.ImagePath, HttpContext.Session.GetString("JWToken"))
+                Images = await _imageRepo.GetAllImages(StaticDetails.GetImages)
+                //HttpContext.User.Identity.IsAuthenticated ? await _imageRepo.GetAllImageByIdAsync
+                //(StaticDetails.GetSingleImage, UserId(), HttpContext.Session.GetString("JWToken")) :
             };
-            //HttpContext.Session.Clear();
-            if (listOfImages != null)
+            imgUploads.IndexViewModel = listOfImages;
+            ViewBag.ImageSuccess = TempData["ImageSuccess"];
+            ViewBag.ImageExist = TempData["ImageExist"];
+            ViewBag.Deleted = TempData["ImageDeleted"];
+            if (User.Identity.IsAuthenticated)
             {
-                var username = HttpContext.Session.GetString("Username");
-                if (username != null && username != "")
+                //ViewData["ReturnUrl"] = returnUrl;
+                
+                //HttpContext.Session.Clear();
+                if (listOfImages.Images != null)
                 {
-                    TempData["Authenticated"] = "Authenticated";
+                    TempData["Authenticated"] = User.Identity.IsAuthenticated ? "Authenticated" : null;
+                    return View(imgUploads);
                 }
-                else
-                {
-                    TempData["Authenticated"] = null;
-                }
-                return View(uploadImageToDb);
+
+                return View(imgUploads);
             }
-            TempData["Authenticated"] = "Authenticated";
-            return View(uploadImageToDb);
+            return View(imgUploads);
         }
 
+
+        private int UserId()
+        {
+            ClaimsIdentity claimsIdentity = User.Identity as ClaimsIdentity;
+            var userName = claimsIdentity.IsAuthenticated ? claimsIdentity.FindFirst(ClaimTypes.Sid).Value : null;
+            return userName == null || userName == "" ? 0 : Convert.ToInt32(userName);
+        }
+
+        private string Token()
+        {
+            ClaimsIdentity claimsIdentity = User.Identity as ClaimsIdentity;
+            var token = claimsIdentity.IsAuthenticated ? claimsIdentity.FindFirst(ClaimTypes.Hash).Value : null;
+            return token == null || token == "" ? "" : token;
+        }
 
         public IActionResult Privacy()
         {
@@ -68,14 +91,16 @@ namespace ImageRepo.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login()
         {
             User obj = new User();
-            return View("LoginRegister",obj);
+            return View("LoginRegister", obj);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public async Task<IActionResult> Login(User obj)
         {
             var objResponse = await _accountRepo.LoginAsync(StaticDetails.AccountPath + "authenticate", obj);
@@ -85,31 +110,31 @@ namespace ImageRepo.Controllers
             var identity = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
             identity.AddClaim(new Claim(ClaimTypes.Name, objResponse.Username));
             identity.AddClaim(new Claim(ClaimTypes.Role, objResponse.Role));
-            var principal = new ClaimsPrincipal(identity);
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+            identity.AddClaim(new Claim(ClaimTypes.Sid, objResponse.Id.ToString()));
+            identity.AddClaim(new Claim(ClaimTypes.Hash, objResponse.Token.ToString()));
 
-            HttpContext.Session.SetString("JWToken", objResponse.Token);
-            HttpContext.Session.SetString("UserId", objResponse.Id.ToString());
-            
+            var principal = new ClaimsPrincipal(identity);
+            await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+            //HttpContext.Session.SetString("JWToken", objResponse.Token);
+            //_httpContextAccessor.HttpContext.Session.SetString("UserId", objResponse.Id.ToString());
+
             HttpContext.Session.SetString("Username", objResponse.Username);
             return RedirectToAction("Index");
         }
-        [HttpGet]
-        public IActionResult UploadImages()
-        {
-            return RedirectToAction("Index");
-        }
+
         [HttpPost]
+        //[AllowAnonymous]
         //[Authorize(Roles ="test")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UploadImages(ImageUploads imageUploads)
+        public async Task<IActionResult> Index(ImageUploads imageUploads)
         {
             try
             {
-                using var ms1 = new MemoryStream();
+                var ms1 = new MemoryStream();
                 var files = HttpContext.Request.Form.Files;
                 int count = 0;
-                
+
 
                 imageUploads.Username = HttpContext.Session.GetString("Username");
                 if (imageUploads.Username == null || imageUploads.Username == "")
@@ -130,27 +155,34 @@ namespace ImageRepo.Controllers
                                     imageUploads.ImageName = files[i].FileName;
                                     imageUploads.FileType = files[i].ContentType;
                                     imageUploads.DateCreated = DateTime.Now;
-                                    imageUploads.UserId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+                                    imageUploads.UserId = UserId();
                                     imageUploads.ImagesUploads = ms1.ToArray();
-                                    imageUploads.imageExistName.Add(imageUploads.ImageName);
-                                    imageUploads.Images = Convert.ToBase64String(imageUploads.ImagesUploads, 0, imageUploads.ImagesUploads.Length);
-                                    imageUploads.ImageUploadList.Add(imageUploads.Images);
+                                    imageUploads.Images = imageUploads.ImagesUploads;
+                                    var fileImage = new FileImage()
+                                    {
+                                        FileName = imageUploads.ImageName,
+                                        Image = imageUploads.Images,
+                                        FileType = imageUploads.FileType,
+                                        FileExtension = imageUploads.FileExtension
+                                    };
+                                    imageUploads.fileImages.Add(fileImage);
+                                    ms1 = new MemoryStream();
                                     break;
                             }
                         }
                     }
                 }
 
-                var uploadImageToDb = await _imageRepo.UploadImageAsync(StaticDetails.UploadImagePath, imageUploads, HttpContext.Session.GetString("JWToken"));
-                
+                var uploadImageToDb = await _imageRepo.UploadImageAsync(StaticDetails.UploadImagePath, imageUploads, Token().ToString());
+
                 if (uploadImageToDb.imageExist[0] == "Success")
-                    uploadImageToDb.imageExist[0] = (count > 1) ? "Images uploaded successfully" : "Image uploaded successfully";
+                    TempData["ImageSuccess"] = (count > 1) ? "Images uploaded successfully" : "Image uploaded successfully";
 
-                
+                TempData["ImageExist"] = uploadImageToDb.imageExist;
 
-                return View("Index", uploadImageToDb);
+                return RedirectToAction("Index");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
@@ -158,6 +190,7 @@ namespace ImageRepo.Controllers
 
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Register()
         {
             User obj = new User();
@@ -166,6 +199,7 @@ namespace ImageRepo.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public async Task<IActionResult> Register(User obj)
         {
             var objResponse = await _accountRepo.RegisterAsync(StaticDetails.AccountPath + "register", obj);
@@ -175,12 +209,24 @@ namespace ImageRepo.Controllers
             return RedirectToAction("Login");
         }
 
-        
+
         public async Task<IActionResult> LogoutAsync(User obj)
         {
+            HttpContext.Session.Clear();
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
-            HttpContext.Session.SetString("JWToken", "");
-            HttpContext.Session.SetString("Username", "");
+            //HttpContext.Session.SetString("JWToken", "");
+            //HttpContext.Session.SetString("Username", "");
+            return RedirectToAction("Index");
+        }
+
+        public IActionResult Delete(int id)
+        {
+            if (id > 0)
+            {
+                var deleteImage = _imageRepo.DeleteAsync(StaticDetails.DeleteImage, id, Token().ToString());
+                TempData["ImageDeleted"] = deleteImage.Result == true ? "Image Deleted Successfully" : "Error Deleting Image";
+                return RedirectToAction("Index");
+            }
             return RedirectToAction("Index");
         }
 

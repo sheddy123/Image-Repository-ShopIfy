@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ImageRepoAPI.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20210117053640_RemoveImageId")]
-    partial class RemoveImageId
+    [Migration("20210117102219_ImageDb")]
+    partial class ImageDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -51,9 +51,9 @@ namespace ImageRepoAPI.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Images")
+                    b.Property<byte[]>("Images")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("varbinary(max)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
