@@ -664,7 +664,7 @@
     </div>
     <!-- Breadcomb area End-->
     <!-- Animateions area start-->
-    <div class="animation-area">
+    <div class="animation-area area1">
         <div class="container">
             
             @{
@@ -677,7 +677,7 @@
             {
                 if (count != 0)
                 {
-                    <div class="row">
+                    <div class="row" id="@Model.IndexViewModel.Images[track].ImageDescription">
                         @while (count != 0)
                         {
                             if (track < totalImages)
@@ -975,6 +975,7 @@
             else {
                 $('img').hide();
                 val = val.split(" ").join("\\ ");
+
                 $("img[alt*=" + val + " i]").show();
                 //$("img[alt*=" + val + "]").show();
             }
