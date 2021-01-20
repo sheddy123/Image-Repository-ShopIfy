@@ -21,7 +21,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- favicon
         ============================================ -->
-    <link rel="shortcut icon" type="image/x-icon" href="img/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="~/ImageRepo/img/favicon.ico">
     <!-- Google Fonts
         ============================================ -->
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,700,900" rel="stylesheet">
@@ -70,6 +70,7 @@
     <!-- modernizr JS
         ============================================ -->
     <script src="~/ImageRepo/js/vendor/modernizr-2.8.3.min.js"></script>
+
     <style>
         .requiredAsteric {
             color: red;
@@ -82,7 +83,58 @@
             font-style: italic;
             color: cadetblue;
         }
+
+        /*.imgContainer {
+            float: left;
+        }
+
+        img {
+            width: 120px !important;
+        }
+
+        body {
+            background: white !important;
+        }
+
+        .imgContainer {
+            position: relative;
+        }
+
+        .image {
+            display: block;
+            width: 100%;
+            height: auto;
+        }*/
+
+        .overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(0,0,0,0.5);
+            overflow: hidden;
+            width: 0;
+            height: 100%;
+            transition: .5s ease;
+        }
+
+        .imgContainer:hover .overlay {
+            width: 100%;
+        }
+
+        .text {
+            white-space: nowrap;
+            color: white;
+            font-size: 20px;
+            position: absolute;
+            overflow: hidden;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+        }
     </style>
+
 </head>
 
 <body>
@@ -106,7 +158,7 @@
                                 <div role="menu" class="dropdown-menu search-dd animated flipInX">
                                     <div class="search-input">
                                         <i class="notika-icon notika-left-arrow"></i>
-                                        <input type="text" />
+                                        <input type="text" id="myinput" />
                                     </div>
                                 </div>
                             </li>
@@ -553,7 +605,7 @@
                     }
                     @if (imageDeleted != null)
                     {
-                        
+
                         <div class="alert-area">
                             <div class="alert-inner">
                                 <div class="alert-list">
@@ -614,93 +666,96 @@
     <!-- Animateions area start-->
     <div class="animation-area">
         <div class="container">
-
+            
             @{
                 int count = 3;
                 var totalImages = Model.IndexViewModel.Images.Count();
                 int track = 0;
             }
-            
-                @foreach (var image in Model.IndexViewModel.Images)
+
+            @foreach (var image in Model.IndexViewModel.Images)
+            {
+                if (count != 0)
                 {
-                    if (count != 0)
-                    {
-                        <div class="row">
-                            @while (count != 0)
+                    <div class="row">
+                        @while (count != 0)
+                        {
+                            if (track < totalImages)
                             {
-                                if (track < totalImages)
-                                {
-                                    <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
-                                        <div class="animation-single-int">
-                                            <div class="animation-ctn-hd">
-                                                <h2>@Model.IndexViewModel.Images[track].ImageDescription</h2>
-                                                <p>@Model.IndexViewModel.Images[track].ImageClassification</p>
-                                            </div>
-                                            <div class="animation-img mg-b-15">
-                                                @if (image.Images != null)
-                                                {
-                                                    var base64 = Convert.ToBase64String(Model.IndexViewModel.Images[track].Images);
-                                                    var imgsrc = string.Format("data:image/jpg;base64,{0}", base64);
-                                                    <img src="@imgsrc" class="img-responsive" alt="@Model.IndexViewModel.Images[track].ImageDescription" />
-                                                    //style="width: 50px; height: 50px; float: left;"
-                                                }
-                                                else
-                                                {
-                                                    <img class="animate-one" src="~/ImageRepo/img/widgets/2.png" alt="" />
-                                                }
-                                            </div>
-                                            <div class="animation-action">
-                                                <div class="row">
-                                                    <div class="col-lg-6">
-                                                        <div class="animation-btn">
-                                                            @*<button class="btn ant-nk-st bounce-ac">bounce</button>*@
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-6">
-                                                        <div class="animation-btn sm-res-mg-t-10 tb-res-mg-t-10 dk-res-mg-t-10">
-                                                            @*<button class="btn ant-nk-st flash-ac">flash</button>*@
-                                                        </div>
+                                <div class="col-lg-4 col-md-4 col-sm-4 col-xs-12">
+                                    <div class="animation-single-int">
+                                        <div class="animation-ctn-hd">
+                                            <h2>@Model.IndexViewModel.Images[track].ImageDescription</h2>
+                                            <p>@Model.IndexViewModel.Images[track].ImageClassification</p>
+                                        </div>
+                                        <div class="animation-img mg-b-15 imgContainer">
+                                            @if (image.Images != null)
+                                            {
+                                                var base64 = Convert.ToBase64String(Model.IndexViewModel.Images[track].Images);
+                                                var imgsrc = string.Format("data:image/jpg;base64,{0}", base64);
+                                                <img src="@imgsrc" class="img-responsive" alt="@Model.IndexViewModel.Images[track].ImageDescription.Trim()" />
+                                                <div class="overlay"><div class="text">@Model.IndexViewModel.Images[track].ImageDescription.Trim()</div></div>
+
+                                                //style="width: 50px; height: 50px; float: left;"
+                                            }
+                                            else
+                                            {
+                                                <img class="animate-one" src="~/ImageRepo/img/widgets/2.png" alt="" />
+                                            }
+                                        </div>
+                                        <div class="animation-action">
+                                            <div class="row">
+                                                <div class="col-lg-6">
+                                                    <div class="animation-btn">
+                                                        @*<button class="btn ant-nk-st bounce-ac">bounce</button>*@
                                                     </div>
                                                 </div>
-                                                <div class="row mg-t-10">
-                                                    <div class="col-lg-6">
-                                                        <div class="animation-btn">
-                                                            @*<button class="btn ant-nk-st pulse-ac">pulse</button>*@
-                                                        </div>
+                                                <div class="col-lg-6">
+                                                    <div class="animation-btn sm-res-mg-t-10 tb-res-mg-t-10 dk-res-mg-t-10">
+                                                        @*<button class="btn ant-nk-st flash-ac">flash</button>*@
                                                     </div>
-                                                    <div class="col-lg-6">
-                                                        <div class="animation-btn sm-res-mg-t-10 tb-res-mg-t-10 dk-res-mg-t-10">
-                                                            @if (userId != null && Model.IndexViewModel.Images[track].UserId.ToString() == userId)
-                                                            {
-                                                                <a href="/Home/Delete/@Model.IndexViewModel.Images[track].Id" class="btn btn-danger notika-btn-danger waves-effect" style="float:right"><i class="notika-icon notika-trash"></i> DELETE</a>
-                                                            }
-                                                        </div>
+                                                </div>
+                                            </div>
+                                            <div class="row mg-t-10">
+                                                <div class="col-lg-6">
+                                                    <div class="animation-btn">
+                                                        @*<button class="btn ant-nk-st pulse-ac">pulse</button>*@
+                                                    </div>
+                                                </div>
+                                                <div class="col-lg-6">
+                                                    <div class="animation-btn sm-res-mg-t-10 tb-res-mg-t-10 dk-res-mg-t-10">
+                                                        @if (userId != null && Model.IndexViewModel.Images[track].UserId.ToString() == userId)
+                                                        {
+                                                            <a href="/Home/Delete/@Model.IndexViewModel.Images[track].Id" class="btn btn-danger notika-btn-danger waves-effect" style="float:right"><i class="notika-icon notika-trash"></i> DELETE</a>
+                                                        }
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    count = count - 1;
-                                    track = track + 1;
-                                }
-                                else { count = 0; }
+                                </div>
+                                count = count - 1;
+                                track = track + 1;
                             }
-                        </div>
-                        <br />
+                            else { count = 0; }
+                        }
+                    </div>
+                    <br />
 
-                    }
-                    if (count == 0)
-                    {
-                        count = 3;
-                    }
-                    if (track == totalImages)
-                    {
-                        break;
-                    }
                 }
-            
+                if (count == 0)
+                {
+                    count = 3;
+                }
+                if (track == totalImages)
+                {
+                    break;
+                }
+            }
+
         </div>
     </div>
+    
     <!-- Animateions area End-->
     <!-- Modal for Image Upload-->
     <div class="modal fade in" id="myModalone" role="dialog">
@@ -849,6 +904,7 @@
     <!-- wow JS
         ============================================ -->
     <script src="~/ImageRepo/js/wow.min.js"></script>
+
     <!-- price-slider JS
         ============================================ -->
     <script src="~/ImageRepo/js/jquery-price-slider.js"></script>
@@ -909,7 +965,22 @@
     <!-- tawk chat JS
         ============================================ -->
     <script src="~/ImageRepo/js/tawk-chat.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
 
+    <script>
+        $("#myinput").keyup(function () {
+            var val = $.trim(this.value);
+            if (val === "")
+                $('img').show();
+            else {
+                $('img').hide();
+                val = val.split(" ").join("\\ ");
+                $("img[alt*=" + val + " i]").show();
+                //$("img[alt*=" + val + "]").show();
+            }
+            console.log("sddfdf");
+        });
+    </script>
 
 </body>
 
